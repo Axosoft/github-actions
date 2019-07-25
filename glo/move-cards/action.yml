@@ -1,0 +1,18 @@
+# move cards
+name: 'Glo Move Cards'
+description: 'GitHub Action to move cards'
+branding:
+  color: 'blue'
+inputs:
+  authToken:
+    description: Auth token for user
+    required: true
+  boardID:
+    description: ID of board
+    required: true
+  cardID:
+    description: ID of card
+    required: true
+runs:
+  using: 'node12'
+  main: 'lib/index.js'
