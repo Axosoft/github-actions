@@ -6,6 +6,8 @@ async function run() {
   const boardID = core.getInput('boardID');
   const cardID = core.getInput('cardID');
 
+  console.log('auth', authToken);
+
   try {
     await GloSDK(authToken).boards.cards.comments.create(boardID, cardID, {
       text: 'hello from GH actions'
