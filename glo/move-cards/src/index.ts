@@ -6,7 +6,8 @@ async function run() {
   const boardID = core.getInput('boardID');
   const cardID = core.getInput('cardID');
 
-  core.debug('auth: ' + authToken);
+  core.debug(`ids: ${boardID}  ${cardID}`);
+  core.debug(`auth: ${authToken}`);
 
   try {
     await GloSDK(authToken).boards.cards.comments.create(boardID, cardID, {

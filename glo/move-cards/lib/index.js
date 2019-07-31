@@ -25,6 +25,8 @@ function run() {
         const authToken = core.getInput('authToken');
         const boardID = core.getInput('boardID');
         const cardID = core.getInput('cardID');
+        core.debug(`ids: ${boardID}  ${cardID}`);
+        core.debug(`auth: ${authToken}`);
         try {
             yield glo_sdk_1.default(authToken).boards.cards.comments.create(boardID, cardID, {
                 text: 'hello from GH actions'
