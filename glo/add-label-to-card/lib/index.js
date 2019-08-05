@@ -27,14 +27,14 @@ function run() {
         const cardID = core.getInput('cardID');
         const labelName = core.getInput('label');
         try {
-            const board = yield glo_sdk_1.default(authToken).boards.get(boardID);
+            const board = yield glo_sdk_1.default(authToken).boards.get(boardID, { fields: ['labels'] });
             if (!board) {
                 core.setFailed(`Board ${boardID} not found`);
                 return;
             }
             core.debug(`found board '${board.name}'`);
             core.debug(JSON.stringify(board));
-            const card = yield glo_sdk_1.default(authToken).boards.cards.get(boardID, cardID);
+            const card = yield glo_sdk_1.default(authToken).boards.cards.get(boardID, cardID, { fields: ['labels'] });
             if (!card) {
                 core.setFailed(`Card ${cardID} not found`);
                 return;

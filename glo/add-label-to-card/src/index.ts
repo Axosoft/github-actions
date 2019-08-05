@@ -8,7 +8,7 @@ async function run() {
   const labelName = core.getInput('label');
 
   try {
-    const board = await GloSDK(authToken).boards.get(boardID);
+    const board = await GloSDK(authToken).boards.get(boardID, { fields: ['labels'] });
     if (!board) {
       core.setFailed(`Board ${boardID} not found`);
       return;
@@ -16,7 +16,7 @@ async function run() {
     core.debug(`found board '${board.name}'`);
     core.debug(JSON.stringify(board));
 
-    const card = await GloSDK(authToken).boards.cards.get(boardID, cardID);
+    const card = await GloSDK(authToken).boards.cards.get(boardID, cardID, { fields: ['labels'] });
     if (!card) {
       core.setFailed(`Card ${cardID} not found`);
       return;
