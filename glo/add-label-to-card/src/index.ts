@@ -14,6 +14,7 @@ async function run() {
       return;
     }
     core.debug(`found board '${board.name}'`);
+    core.debug(JSON.stringify(board));
 
     const card = await GloSDK(authToken).boards.cards.get(boardID, cardID);
     if (!card) {
@@ -21,11 +22,13 @@ async function run() {
       return;
     }
     core.debug(`found card '${card.name}'`);
+    core.debug(JSON.stringify(card));
 
     // find label
     if (board.labels) {
       const label = board.labels.find(l => l.name === labelName);
       if (label) {
+        core.debug(`found label ${label.name}`);
         if (!card.labels) {
           card.labels = [];
         }
