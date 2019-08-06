@@ -4,16 +4,18 @@ import { toHex } from 'base64-mongo-id';
 
 interface IBoard {
   id: string;
-  cardIds: string[];
+  cards: string[];
 }
 function formatResponse(response: IBoard[]) {
-  return core.setOutput("cardIds", JSON.stringify(response));;
+  return core.setOutput("boards", JSON.stringify(response));;
 }
 
 async function run() {
   if (process.env.GITHUB_EVENT_NAME !== 'push') {
     return formatResponse([]);
   }
+
+  // read event file
   const event: any = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH as string, { encoding: 'utf8' }));
   if (!event || !event.head_commit || !event.head_commit.message) {
     return formatResponse([]); 
@@ -39,11 +41,11 @@ async function run() {
 
     const board = boards[boardIdIndexMap[boardId]];
     if (board) {
-      board.cardIds.push(cardId);
+      board.cards.push(cardId);
     } else {
       boards[boardIdIndexMap[boardId]] = {
         id: boardId,
-        cardIds: [cardId]
+        cards: [cardId]
       }
     }
   }

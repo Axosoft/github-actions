@@ -19,7 +19,7 @@ const fs = __importStar(require("fs"));
 const core = __importStar(require("@actions/core"));
 const base64_mongo_id_1 = require("base64-mongo-id");
 function formatResponse(response) {
-    return core.setOutput("cardIds", JSON.stringify(response));
+    return core.setOutput("boards", JSON.stringify(response));
     ;
 }
 function run() {
@@ -27,6 +27,7 @@ function run() {
         if (process.env.GITHUB_EVENT_NAME !== 'push') {
             return formatResponse([]);
         }
+        // read event file
         const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, { encoding: 'utf8' }));
         if (!event || !event.head_commit || !event.head_commit.message) {
             return formatResponse([]);
@@ -47,12 +48,12 @@ function run() {
             boardIdIndexMap[boardId] = boardIdIndexMap[boardId] || boards.length;
             const board = boards[boardIdIndexMap[boardId]];
             if (board) {
-                board.cardIds.push(cardId);
+                board.cards.push(cardId);
             }
             else {
                 boards[boardIdIndexMap[boardId]] = {
                     id: boardId,
-                    cardIds: [cardId]
+                    cards: [cardId]
                 };
             }
         }

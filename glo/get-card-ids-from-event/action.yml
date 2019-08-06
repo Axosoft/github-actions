@@ -1,6 +1,6 @@
 # move cards
-name: 'Glo Add Label To Card'
-description: 'GitHub Action to add a label to a card'
+name: 'Glo Parse Links'
+description: 'GitHub Action to parse links for cards'
 branding:
   color: 'blue'
   icon: 'tag'
@@ -8,15 +8,9 @@ inputs:
   authToken:
     description: Auth token for user
     required: true
-  boardID:
-    description: ID of board
-    required: true
-  cardID:
-    description: ID of card
-    required: true
-  label:
-    description: Name of label to add to card
-    required: true
+outputs:
+  boards:
+    description: Stringified array of boards with list of cards
 runs:
   using: 'node12'
   main: 'lib/index.js'
