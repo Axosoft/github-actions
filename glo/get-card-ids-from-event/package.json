@@ -25,6 +25,7 @@
     "@actions/core": "file:../../toolkit/actions-core-0.0.0.tgz",
     "@actions/exec": "file:../../toolkit/actions-exec-0.0.0.tgz",
     "@axosoft/glo-sdk": "^1.0.7",
+    "base64-mongo-id": "^2.0.1",
     "fs": "^0.0.1-security"
   }
 }

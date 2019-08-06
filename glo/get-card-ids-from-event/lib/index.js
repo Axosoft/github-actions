@@ -17,36 +17,33 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
 const core = __importStar(require("@actions/core"));
+const base64_mongo_id_1 = require("base64-mongo-id");
 function formatResponse(response) {
     return core.setOutput("cardIds", JSON.stringify(response));
     ;
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log(process.env.GITHUB_EVENT_NAME || 'test123');
         if (process.env.GITHUB_EVENT_NAME !== 'push') {
             return formatResponse([]);
         }
-        const event = fs.readFileSync(process.env.GITHUB_EVENT_PATH, { encoding: 'utf8' });
-        console.log(JSON.stringify(event));
+        const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, { encoding: 'utf8' }));
         if (!event || !event.head_commit || !event.head_commit.message) {
             return formatResponse([]);
         }
         let bodyToSearchForGloLink = event.head_commit.message;
-        console.log(bodyToSearchForGloLink);
         const urlREGEX = RegExp(`https://app.gitkraken.com/glo/board/([\\w.-]+)/card/([\\w.-]+)`, 'g');
         let boardIdIndexMap = {};
         let boards = [];
         let foundResult;
         while ((foundResult = urlREGEX.exec(bodyToSearchForGloLink)) !== null) {
-            // 0 https://app.gitkraken.com/glo/board/WypkcIjPCxAArrhR/card/XKTgt5arBgAPsVjF
-            const boardId = foundResult[1];
-            const cardId = foundResult[2];
-            console.log(JSON.stringify(foundResult));
             if (!foundResult || foundResult.length < 3) {
                 // link is not valid??
                 return;
             }
+            // 0 https://app.gitkraken.com/glo/board/WypkcIjPCxAArrhR/card/XKTgt5arBgAPsVjF
+            const boardId = base64_mongo_id_1.toHex(foundResult[1]);
+            const cardId = base64_mongo_id_1.toHex(foundResult[2]);
             boardIdIndexMap[boardId] = boardIdIndexMap[boardId] || boards.length;
             const board = boards[boardIdIndexMap[boardId]];
             if (board) {
@@ -59,10 +56,7 @@ function run() {
                 };
             }
         }
-        console.log(JSON.stringify(boards));
         return formatResponse(boards);
     });
 }
-console.log('life');
-console.log('ahhh');
 run();
