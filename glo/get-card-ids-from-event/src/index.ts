@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as core from '@actions/core';
-import config from '../config/config.json'
 
 interface IBoard {
   id: string;
@@ -26,7 +25,7 @@ async function run() {
   let bodyToSearchForGloLink = event.head_commit.message;
 
   core.debug(bodyToSearchForGloLink);
-  const urlREGEX = RegExp(`${config.gloBaseUrl}/board/([\\w.-]+)/card/([\\w.-]+)`, 'g');
+  const urlREGEX = RegExp(`https://app.gitkraken.com/glo/board/([\\w.-]+)/card/([\\w.-]+)`, 'g');
 
   let boardIdIndexMap: { [boardId: string]: number } = {};
   let boards: IBoard[] = [];

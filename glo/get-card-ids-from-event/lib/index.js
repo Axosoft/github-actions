@@ -14,54 +14,53 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs = __importStar(require("fs"));
 const core = __importStar(require("@actions/core"));
-const glo_sdk_1 = __importDefault(require("@axosoft/glo-sdk"));
+function formatResponse(response) {
+    return core.setOutput("cardIds", JSON.stringify(response));
+    ;
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        const authToken = core.getInput('authToken');
-        const boardID = core.getInput('boardID');
-        const cardID = core.getInput('cardID');
-        const labelName = core.getInput('label');
-        try {
-            const board = yield glo_sdk_1.default(authToken).boards.get(boardID, { fields: ['labels'] });
-            if (!board) {
-                core.setFailed(`Board ${boardID} not found`);
+        core.debug(process.env.GITHUB_EVENT_NAME || '');
+        if (process.env.GITHUB_EVENT_NAME !== 'push') {
+            return formatResponse([]);
+        }
+        const event = fs.readFileSync(process.env.GITHUB_EVENT_PATH, { encoding: 'utf8' });
+        core.debug(JSON.stringify(event));
+        if (!event || !event.head_commit || !event.head_commit.message) {
+            return formatResponse([]);
+        }
+        let bodyToSearchForGloLink = event.head_commit.message;
+        core.debug(bodyToSearchForGloLink);
+        const urlREGEX = RegExp(`https://app.gitkraken.com/glo/board/([\\w.-]+)/card/([\\w.-]+)`, 'g');
+        let boardIdIndexMap = {};
+        let boards = [];
+        let foundResult;
+        while ((foundResult = urlREGEX.exec(bodyToSearchForGloLink)) !== null) {
+            // 0 https://app.gitkraken.com/glo/board/WypkcIjPCxAArrhR/card/XKTgt5arBgAPsVjF
+            const boardId = foundResult[1];
+            const cardId = foundResult[2];
+            core.debug(JSON.stringify(foundResult));
+            if (!foundResult || foundResult.length < 3) {
+                // link is not valid??
                 return;
             }
-            core.debug(`found board '${board.name}'`);
-            core.debug(JSON.stringify(board));
-            const card = yield glo_sdk_1.default(authToken).boards.cards.get(boardID, cardID, { fields: ['labels'] });
-            if (!card) {
-                core.setFailed(`Card ${cardID} not found`);
-                return;
+            boardIdIndexMap[boardId] = boardIdIndexMap[boardId] || boards.length;
+            const board = boards[boardIdIndexMap[boardId]];
+            if (board) {
+                board.cardIds.push(cardId);
             }
-            core.debug(`found card '${card.name}'`);
-            core.debug(JSON.stringify(card));
-            // find label
-            if (board.labels) {
-                const label = board.labels.find(l => l.name === labelName);
-                if (label) {
-                    core.debug(`found label ${label.name}`);
-                    if (!card.labels) {
-                        card.labels = [];
-                    }
-                    card.labels.push({
-                        id: label.id,
-                        name: label.name
-                    });
-                    // update card
-                    yield glo_sdk_1.default(authToken).boards.cards.edit(boardID, cardID, card);
-                    core.debug(`label '${label}' added to card`);
-                }
+            else {
+                boards[boardIdIndexMap[boardId]] = {
+                    id: boardId,
+                    cardIds: [cardId]
+                };
             }
         }
-        catch (error) {
-            core.setFailed(error.message);
-        }
+        core.debug(JSON.stringify(boards));
+        return formatResponse(boards);
     });
 }
 run();
