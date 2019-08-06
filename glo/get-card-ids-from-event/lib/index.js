@@ -23,17 +23,17 @@ function formatResponse(response) {
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        core.debug(process.env.GITHUB_EVENT_NAME || '');
+        console.log(process.env.GITHUB_EVENT_NAME || 'test123');
         if (process.env.GITHUB_EVENT_NAME !== 'push') {
             return formatResponse([]);
         }
         const event = fs.readFileSync(process.env.GITHUB_EVENT_PATH, { encoding: 'utf8' });
-        core.debug(JSON.stringify(event));
+        console.log(JSON.stringify(event));
         if (!event || !event.head_commit || !event.head_commit.message) {
             return formatResponse([]);
         }
         let bodyToSearchForGloLink = event.head_commit.message;
-        core.debug(bodyToSearchForGloLink);
+        console.log(bodyToSearchForGloLink);
         const urlREGEX = RegExp(`https://app.gitkraken.com/glo/board/([\\w.-]+)/card/([\\w.-]+)`, 'g');
         let boardIdIndexMap = {};
         let boards = [];
@@ -42,7 +42,7 @@ function run() {
             // 0 https://app.gitkraken.com/glo/board/WypkcIjPCxAArrhR/card/XKTgt5arBgAPsVjF
             const boardId = foundResult[1];
             const cardId = foundResult[2];
-            core.debug(JSON.stringify(foundResult));
+            console.log(JSON.stringify(foundResult));
             if (!foundResult || foundResult.length < 3) {
                 // link is not valid??
                 return;
@@ -59,8 +59,10 @@ function run() {
                 };
             }
         }
-        core.debug(JSON.stringify(boards));
+        console.log(JSON.stringify(boards));
         return formatResponse(boards);
     });
 }
+console.log('life');
+console.log('ahhh');
 run();
