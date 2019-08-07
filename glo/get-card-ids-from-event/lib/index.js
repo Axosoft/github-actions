@@ -18,9 +18,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
 const core = __importStar(require("@actions/core"));
 const base64_mongo_id_1 = require("base64-mongo-id");
-function formatResponse(response) {
-    return core.setOutput("cards", JSON.stringify(response));
-    ;
+function formatResponse(cards, body = '') {
+    core.setOutput("cards", JSON.stringify(cards));
+    core.setOutput("body", body);
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -31,17 +31,14 @@ function run() {
         }
         // read event file
         const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, { encoding: 'utf8' }));
-        console.log('here');
         let bodyToSearchForGloLink;
         if (isPush) {
-            console.log('is push');
             if (!event || !event.head_commit || !event.head_commit.message) {
                 return formatResponse([]);
             }
             bodyToSearchForGloLink = event.head_commit.message;
         }
         if (isPullRequest) {
-            console.log('is pull request', event.pull_request);
             if (!event || !event.pull_request || !event.pull_request.body) {
                 return formatResponse([]);
             }
@@ -63,7 +60,7 @@ function run() {
                 cardId
             });
         }
-        return formatResponse(cards);
+        return formatResponse(cards, bodyToSearchForGloLink);
     });
 }
 run();

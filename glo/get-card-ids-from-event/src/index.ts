@@ -7,8 +7,9 @@ interface ICard {
   cardId: string;
 }
 
-function formatResponse(cards: ICard[], body: string = '') {
+function formatResponse(cards: ICard[], title: string = '', body: string = '') {
   core.setOutput("cards", JSON.stringify(cards));
+  core.setOutput("title", title);
   core.setOutput("body", body);
 }
 
