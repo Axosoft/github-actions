@@ -7,8 +7,9 @@ interface ICard {
   cardId: string;
 }
 
-function formatResponse(response: ICard[]) {
-  return core.setOutput("cards", JSON.stringify(response));;
+function formatResponse(cards: ICard[], body: string = '') {
+  core.setOutput("cards", JSON.stringify(cards));
+  core.setOutput("body", body);
 }
 
 async function run() {
@@ -55,7 +56,7 @@ async function run() {
     });
   }
 
-  return formatResponse(cards);
+  return formatResponse(cards, bodyToSearchForGloLink);
 }
 
 run();
