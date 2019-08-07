@@ -24,7 +24,6 @@ function formatResponse(response) {
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('here', process.env.GITHUB_EVENT_NAME);
         const isPush = process.env.GITHUB_EVENT_NAME === 'push';
         const isPullRequest = process.env.GITHUB_EVENT_NAME === 'pull_request';
         if (!isPush && !isPullRequest) {
@@ -32,14 +31,17 @@ function run() {
         }
         // read event file
         const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, { encoding: 'utf8' }));
+        console.log('here');
         let bodyToSearchForGloLink;
         if (isPush) {
+            console.log('is push');
             if (!event || !event.head_commit || !event.head_commit.message) {
                 return formatResponse([]);
             }
             bodyToSearchForGloLink = event.head_commit.message;
         }
         if (isPullRequest) {
+            console.log('is pull request', event.pull_request);
             if (!event || !event.pull_request || !event.pull_request.body) {
                 return formatResponse([]);
             }

@@ -12,7 +12,6 @@ function formatResponse(response: ICard[]) {
 }
 
 async function run() {
-  console.log('here', process.env.GITHUB_EVENT_NAME)
   const isPush = process.env.GITHUB_EVENT_NAME === 'push';
   const isPullRequest = process.env.GITHUB_EVENT_NAME === 'pull_request'
   if (!isPush && !isPullRequest) {
