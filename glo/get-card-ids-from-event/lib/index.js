@@ -19,7 +19,7 @@ const fs = __importStar(require("fs"));
 const core = __importStar(require("@actions/core"));
 const base64_mongo_id_1 = require("base64-mongo-id");
 function formatResponse(response) {
-    return core.setOutput("boards", JSON.stringify(response));
+    return core.setOutput("cards", JSON.stringify(response));
     ;
 }
 function run() {
@@ -32,10 +32,9 @@ function run() {
         if (!event || !event.head_commit || !event.head_commit.message) {
             return formatResponse([]);
         }
-        let bodyToSearchForGloLink = event.head_commit.message;
+        const bodyToSearchForGloLink = event.head_commit.message;
         const urlREGEX = RegExp(`https://app.gitkraken.com/glo/board/([\\w.-]+)/card/([\\w.-]+)`, 'g');
-        let boardIdIndexMap = {};
-        let boards = [];
+        const cards = [];
         let foundResult;
         while ((foundResult = urlREGEX.exec(bodyToSearchForGloLink)) !== null) {
             if (!foundResult || foundResult.length < 3) {
@@ -45,19 +44,12 @@ function run() {
             // 0 https://app.gitkraken.com/glo/board/WypkcIjPCxAArrhR/card/XKTgt5arBgAPsVjF
             const boardId = base64_mongo_id_1.toHex(foundResult[1]);
             const cardId = base64_mongo_id_1.toHex(foundResult[2]);
-            boardIdIndexMap[boardId] = boardIdIndexMap[boardId] || boards.length;
-            const board = boards[boardIdIndexMap[boardId]];
-            if (board) {
-                board.cards.push(cardId);
-            }
-            else {
-                boards[boardIdIndexMap[boardId]] = {
-                    id: boardId,
-                    cards: [cardId]
-                };
-            }
+            cards.push({
+                boardId,
+                cardId
+            });
         }
-        return formatResponse(boards);
+        return formatResponse(cards);
     });
 }
 run();

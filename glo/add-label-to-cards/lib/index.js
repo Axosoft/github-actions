@@ -23,46 +23,42 @@ const glo_sdk_1 = __importDefault(require("@axosoft/glo-sdk"));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const authToken = core.getInput('authToken');
-        const boardsJson = core.getInput('boards');
+        const cardsJson = core.getInput('cards');
         const labelName = core.getInput('label');
         try {
-            const boardIds = JSON.parse(boardsJson);
-            if (!boardIds) {
+            const cards = JSON.parse(cardsJson);
+            if (!cards) {
                 return;
             }
-            for (let i = 0; i < boardIds.length; i++) {
-                const boardData = boardIds[i];
-                const boardID = boardData.id;
-                const cardIDs = boardData.cards;
+            for (let i = 0; i < cards.length; i++) {
+                const cardData = cards[i];
+                const { boardId, cardId } = cardData;
                 // find the board { id, labels }
-                const board = yield glo_sdk_1.default(authToken).boards.get(boardID, { fields: ['labels'] });
+                const board = yield glo_sdk_1.default(authToken).boards.get(boardId, { fields: ['labels'] });
                 if (!board) {
-                    core.setFailed(`Board ${boardID} not found`);
+                    core.setFailed(`Board ${boardId} not found`);
                     continue;
                 }
-                for (let j = 0; j < cardIDs.length; j++) {
-                    const cardID = cardIDs[j];
-                    // find the card { id, labels }
-                    const card = yield glo_sdk_1.default(authToken).boards.cards.get(boardID, cardID, { fields: ['labels'] });
-                    if (!card) {
-                        core.setFailed(`Card ${cardID} not found`);
-                        continue;
-                    }
-                    // find label
-                    if (board.labels) {
-                        const label = board.labels.find(l => l.name === labelName);
-                        if (label) {
-                            if (!card.labels) {
-                                card.labels = [];
-                            }
-                            // add label to the card
-                            card.labels.push({
-                                id: label.id,
-                                name: label.name
-                            });
-                            // update card
-                            yield glo_sdk_1.default(authToken).boards.cards.edit(boardID, cardID, card);
+                // find the card { id, labels }
+                const card = yield glo_sdk_1.default(authToken).boards.cards.get(boardId, cardId, { fields: ['labels'] });
+                if (!card) {
+                    core.setFailed(`Card ${cardId} not found`);
+                    continue;
+                }
+                // find label
+                if (board.labels) {
+                    const label = board.labels.find(l => l.name === labelName);
+                    if (label) {
+                        if (!card.labels) {
+                            card.labels = [];
                         }
+                        // add label to the card
+                        card.labels.push({
+                            id: label.id,
+                            name: label.name
+                        });
+                        // update card
+                        yield glo_sdk_1.default(authToken).boards.cards.edit(boardId, cardId, card);
                     }
                 }
             }
