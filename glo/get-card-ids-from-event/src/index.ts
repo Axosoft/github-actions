@@ -23,19 +23,26 @@ async function run() {
   // read event file
   const event: any = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH as string, { encoding: 'utf8' }));
 
-  let bodyToSearchForGloLink;
+  let bodyToSearchForGloLink = '';
+  let titleOfEvent = ''
   if (isPush) {
-    if (!event || !event.head_commit || !event.head_commit.message) {
+    if (!event || !event.head_commit) {
       return formatResponse([]); 
     }
     bodyToSearchForGloLink = event.head_commit.message;
+    titleOfEvent = event.head_commit.id; // sha
   }
 
   if (isPullRequest) {
-    if (!event || !event.pull_request || !event.pull_request.body) {
+    if (!event || !event.pull_request) {
       return formatResponse([]); 
     }
     bodyToSearchForGloLink = event.pull_request.body;
+    titleOfEvent = event.pull_request.title;
+  }
+
+  if (!bodyToSearchForGloLink) {
+    return formatResponse([], titleOfEvent); 
   }
 
   const urlREGEX = RegExp(`https://app.gitkraken.com/glo/board/([\\w.-]+)/card/([\\w.-]+)`, 'g');
@@ -57,7 +64,7 @@ async function run() {
     });
   }
 
-  return formatResponse(cards, bodyToSearchForGloLink);
+  return formatResponse(cards, titleOfEvent, bodyToSearchForGloLink);
 }
 
 run();

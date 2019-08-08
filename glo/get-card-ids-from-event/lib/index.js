@@ -18,8 +18,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
 const core = __importStar(require("@actions/core"));
 const base64_mongo_id_1 = require("base64-mongo-id");
-function formatResponse(cards, body = '') {
+function formatResponse(cards, title = '', body = '') {
     core.setOutput("cards", JSON.stringify(cards));
+    core.setOutput("title", title);
     core.setOutput("body", body);
 }
 function run() {
@@ -31,18 +32,24 @@ function run() {
         }
         // read event file
         const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, { encoding: 'utf8' }));
-        let bodyToSearchForGloLink;
+        let bodyToSearchForGloLink = '';
+        let titleOfEvent = '';
         if (isPush) {
-            if (!event || !event.head_commit || !event.head_commit.message) {
+            if (!event || !event.head_commit) {
                 return formatResponse([]);
             }
             bodyToSearchForGloLink = event.head_commit.message;
+            titleOfEvent = event.head_commit.id; // sha
         }
         if (isPullRequest) {
-            if (!event || !event.pull_request || !event.pull_request.body) {
+            if (!event || !event.pull_request) {
                 return formatResponse([]);
             }
             bodyToSearchForGloLink = event.pull_request.body;
+            titleOfEvent = event.pull_request.title;
+        }
+        if (!bodyToSearchForGloLink) {
+            return formatResponse([], titleOfEvent);
         }
         const urlREGEX = RegExp(`https://app.gitkraken.com/glo/board/([\\w.-]+)/card/([\\w.-]+)`, 'g');
         const cards = [];
@@ -60,7 +67,7 @@ function run() {
                 cardId
             });
         }
-        return formatResponse(cards, bodyToSearchForGloLink);
+        return formatResponse(cards, titleOfEvent, bodyToSearchForGloLink);
     });
 }
 run();
